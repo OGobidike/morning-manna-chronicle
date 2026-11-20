@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Morning Manna</title>
+<meta name="description" content="Morning Manna, a daily Bible reading app for working people, and the data platform behind it, told in twelve leaves.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+SC:wght@400;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap">
+<style>
+:root {
+  --vellum: #efe5cf;
+  --vellum-2: #f8f1df;
+  --ink: #2b2117;
+  --ink-soft: #5b4a37;
+  --rule: #c6b38b;
+  --gold: #7d560f;
+  --gold-leaf: #c4952d;
+  --rubric: #a4301d;
+  --plate: #fffdf7;
+  --shadow: 0 1px 0 rgba(43, 33, 23, 0.06), 0 14px 34px rgba(43, 33, 23, 0.16);
+  --veil: 0.16;
+  --font-display: "IM Fell English", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-sc: "IM Fell English SC", "IM Fell English", Georgia, serif;
+  --font-body: "Alegreya", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-label: "Alegreya SC", "Alegreya", Georgia, serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --vellum: #16110b; --vellum-2: #201910; --ink: #ece1c8; --ink-soft: #bba98a; --rule: #4b3d27;
+    --gold: #e3b75c; --gold-leaf: #d6a846; --rubric: #ff8f73; --plate: #ece4d2;
+    --shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 14px 34px rgba(0, 0, 0, 0.5); --veil: 0.2;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --vellum: #16110b; --vellum-2: #201910; --ink: #ece1c8; --ink-soft: #bba98a; --rule: #4b3d27;
+  --gold: #e3b75c; --gold-leaf: #d6a846; --rubric: #ff8f73; --plate: #ece4d2;
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 14px 34px rgba(0, 0, 0, 0.5); --veil: 0.2;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--vellum); color: var(--ink); font-family: var(--font-body); font-size: 1.12rem; line-height: 1.62; -webkit-font-smoothing: antialiased;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--gold); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--gold-leaf); outline-offset: 3px; }
+
+.backdrop { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--vellum); }
+.backdrop img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; opacity: 0; transition: opacity 1.6s ease; }
+.backdrop img.on { opacity: var(--veil); }
+.backdrop::after { content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 70% at 50% 40%, var(--vellum) 0%, transparent 100%); opacity: 0.55; }
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .backdrop img { animation: drift 70s ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: scale(1.02); } to { transform: scale(1.09) translate3d(-1.2%, -0.8%, 0); } }
+}
+@media (prefers-reduced-motion: reduce) { .backdrop img { transition: none; } }
+
+.daynight { position: fixed; z-index: 20; top: calc(env(safe-area-inset-top, 0px) + 12px); right: calc(env(safe-area-inset-right, 0px) + 12px);
+  display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-label); font-size: 0.95rem; letter-spacing: 0.04em;
+  color: var(--ink); background: var(--vellum-2); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 14px 6px 11px; box-shadow: var(--shadow); cursor: pointer; }
+.daynight:hover { border-color: var(--gold-leaf); }
+.daynight .glyph { color: var(--gold-leaf); font-size: 1.1rem; line-height: 1; }
+
+.page { max-width: 880px; margin: 0 auto; padding-block: 64px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+.cover { text-align: center; padding-bottom: 20px; }
+.eyebrow { margin: 0; font-family: var(--font-sc); font-size: 1rem; letter-spacing: 0.1em; color: var(--gold); }
+.cover h1 { margin: 6px 0 4px; font-family: var(--font-display); font-weight: 400; font-size: clamp(2.8rem, 9vw, 5rem); line-height: 1.02; }
+.cover .vow { margin: 0 auto; max-width: 40ch; font-family: var(--font-display); font-style: italic; font-size: clamp(1.25rem, 3.4vw, 1.6rem); color: var(--ink-soft); text-wrap: balance; }
+.cover .by { margin: 14px 0 0; font-family: var(--font-label); letter-spacing: 0.05em; color: var(--ink-soft); }
+.cover .heroimg { margin: 26px auto 0; border: 1px solid var(--rule); box-shadow: var(--shadow); border-radius: 4px; }
+
+.contents { margin: 34px auto 10px; padding: 18px 20px 14px; background: var(--vellum-2); border: 1px solid var(--rule); box-shadow: var(--shadow); border-radius: 4px; }
+.contents h2 { margin: 0 0 8px; font-family: var(--font-sc); font-weight: 400; font-size: 1.05rem; letter-spacing: 0.1em; color: var(--gold); text-align: center; }
+.contents ol { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 2px 18px; }
+.contents a { display: flex; gap: 10px; padding: 4px 2px; color: var(--ink); text-decoration: none; border-bottom: 1px dotted transparent; }
+.contents a:hover { border-bottom-color: var(--rule); }
+.contents .n { font-family: var(--font-sc); color: var(--gold); min-width: 2.4em; }
+
+.leaf { margin: 40px 0 0; padding: clamp(20px, 4.5vw, 44px); background: var(--vellum-2); border: 1px solid var(--rule); box-shadow: var(--shadow); border-radius: 4px; scroll-margin-top: 20px; }
+.leaf .no { margin: 0; font-family: var(--font-sc); font-size: 0.95rem; letter-spacing: 0.1em; color: var(--gold); }
+.leaf h2 { margin: 2px 0 10px; font-family: var(--font-display); font-weight: 400; font-size: clamp(2rem, 5.4vw, 2.8rem); line-height: 1.08; text-wrap: balance; }
+.leaf h2::after { content: ""; display: block; width: 72px; height: 2px; margin-top: 12px; background: var(--gold-leaf); }
+.leaf p { margin: 0 0 14px; max-width: 66ch; }
+.leaf .lede { font-size: 1.22rem; color: var(--ink); }
+.leaf ul { margin: 0 0 16px; padding-left: 1.2em; max-width: 66ch; }
+.leaf li { margin: 0 0 6px; }
+.leaf li::marker { color: var(--gold-leaf); }
+.leaf strong { font-weight: 700; }
+.leaf blockquote { margin: 0 0 16px; padding: 4px 0 4px 18px; border-left: 3px solid var(--gold-leaf); font-family: var(--font-display); font-style: italic; font-size: 1.2rem; color: var(--ink-soft); max-width: 60ch; }
+
+.figures { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; margin: 6px 0 16px; }
+figure { margin: 6px 0 16px; min-width: 0; }
+.figures figure { margin: 0; flex: 1 1 130px; max-width: 216px; }
+figure img { background: var(--plate); border: 1px solid var(--rule); border-radius: 3px; }
+figcaption { margin-top: 6px; font-size: 0.92rem; color: var(--ink-soft); font-style: italic; }
+
+.tally { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 10px; margin: 4px 0 18px; }
+.tally div { padding: 10px 12px; border: 1px solid var(--rule); border-radius: 3px; background: var(--vellum); }
+.tally b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 1.85rem; line-height: 1.1; color: var(--gold); font-variant-numeric: lining-nums tabular-nums; }
+.tally span { font-size: 0.92rem; color: var(--ink-soft); line-height: 1.3; display: block; }
+
+.tablewrap { overflow-x: auto; margin: 0 0 16px; }
+table { border-collapse: collapse; min-width: 100%; font-variant-numeric: lining-nums tabular-nums; }
+th, td { text-align: left; padding: 6px 12px 6px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--font-label); font-weight: 400; color: var(--ink-soft); letter-spacing: 0.03em; }
+.num { text-align: right; padding-right: 0; white-space: nowrap; }
+tr.win td { color: var(--gold); font-weight: 700; }
+
+.pretend { margin: 0 0 18px; padding: 10px 14px; border: 1px dashed var(--rubric); border-radius: 3px; color: var(--ink); font-size: 0.98rem; max-width: 66ch; }
+.pretend b { font-family: var(--font-label); color: var(--rubric); letter-spacing: 0.04em; font-weight: 700; }
+.more { margin: 4px 0 0; font-family: var(--font-label); letter-spacing: 0.03em; font-size: 1rem; }
+
+.colophon { margin: 48px 0 0; text-align: center; color: var(--ink-soft); font-size: 0.98rem; }
+.colophon p { margin: 0 0 6px; }
+.colophon .fleuron { color: var(--gold-leaf); font-size: 1.4rem; }
+</style>
+</head>
+<body>
+
+<div class="backdrop" aria-hidden="true">
+  <img src="img/bg/scriptorium.jpg" alt="" data-bg="scriptorium" class="on">
+  <img src="img/bg/tomes.jpg" alt="" data-bg="tomes">
+  <img src="img/bg/locks.jpg" alt="" data-bg="locks">
+  <img src="img/bg/ledger.jpg" alt="" data-bg="ledger">
+</div>
+
+<button class="daynight" id="daynight" type="button" aria-label="Switch between day and night">
+  <span class="glyph" aria-hidden="true">☀</span><span class="label">Day</span>
+</button>
+
+<main class="page">
+
+  <header class="cover" id="leaf-1" data-bg="scriptorium">
+    <p class="eyebrow">Leaf I of XII · The Cover</p>
+    <h1>Morning Manna</h1>
+    <p class="vow">One short passage, every morning, at the hour you wake.</p>
+    <p class="by">A Bible reading app for working people, and the data platform behind it · by Francis Obidike</p>
+    <img class="heroimg" src="img/hero.jpg" width="1600" height="836" alt="Morning Manna: a smiling robot with a halo holds a bowl of manna on a cloud. Daily bread for the soul, served by a full data platform.">
+  </header>
+
+  <nav class="contents" aria-labelledby="contents-h">
+    <h2 id="contents-h">The twelve leaves</h2>
+    <ol>
+      <li><a href="#leaf-1"><span class="n">I</span>The Cover</a></li>
+      <li><a href="#leaf-2"><span class="n">II</span>The Need</a></li>
+      <li><a href="#leaf-3"><span class="n">III</span>The Scripture</a></li>
+      <li><a href="#leaf-4"><span class="n">IV</span>The App</a></li>
+      <li><a href="#leaf-5"><span class="n">V</span>The Platform</a></li>
+      <li><a href="#leaf-6"><span class="n">VI</span>Who Comes Back</a></li>
+      <li><a href="#leaf-7"><span class="n">VII</span>The First Test</a></li>
+      <li><a href="#leaf-8"><span class="n">VIII</span>Streak at Risk</a></li>
+      <li><a href="#leaf-9"><span class="n">IX</span>The Readers</a></li>
+      <li><a href="#leaf-10"><span class="n">X</span>Search by Meaning</a></li>
+      <li><a href="#leaf-11"><span class="n">XI</span>What to Read Next</a></li>
+      <li><a href="#leaf-12"><span class="n">XII</span>The Road Ahead</a></li>
+    </ol>
+  </nav>
+
+  <section class="leaf" id="leaf-2" data-bg="scriptorium" aria-labelledby="h2">
+    <p class="no">Leaf II</p>
+    <h2 id="h2">The Need</h2>
+    <p class="lede">One short passage, every morning. That is the promise Morning Manna makes to working people who want to start the day with Scripture.</p>
+    <p>The promise is small on purpose:</p>
+    <ul>
+      <li><strong>Set your wake time</strong>, and the reminder comes then, in your own time zone.</li>
+      <li><strong>Read one short passage</strong>, from a plan such as <em>30 Mornings</em>: thirty short passages from the Psalms, the Gospels and the prophets.</li>
+      <li><strong>Mark it read</strong>, and your streak grows.</li>
+      <li><strong>Miss a morning</strong>, and it's picked up the next day, never skipped.</li>
+    </ul>
+    <p>Behind that promise sits a full data platform, so the app can learn when people read, who comes back, and what helps them keep going. The leaves that follow walk through it, one piece at a time.</p>
+  </section>
+
+  <section class="leaf" id="leaf-3" data-bg="scriptorium" aria-labelledby="h3">
+    <p class="no">Leaf III</p>
+    <h2 id="h3">The Scripture</h2>
+    <p class="lede">Before the app can keep its promise, the whole Bible has to be in the database, and it has to be right.</p>
+    <div class="tally">
+      <div><b>2</b><span>public-domain translations: King James and American Standard</span></div>
+      <div><b>66</b><span>books</span></div>
+      <div><b>1,189</b><span>chapters</span></div>
+      <div><b>62,188</b><span>verses</span></div>
+    </div>
+    <p>One command, <code>python -m app.etl</code>, runs four stations:</p>
+    <ul>
+      <li><strong>Extract</strong> both translations, fetched once.</li>
+      <li><strong>Transform</strong> book names and text with pandas.</li>
+      <li><strong>Validate</strong>, and stop loudly if a rule breaks: all 66 books present, the right number of chapters in each, no empty or duplicate verses.</li>
+      <li><strong>Load</strong> everything in one transaction, so a failed run leaves nothing half-loaded and a repeat run changes nothing.</li>
+    </ul>
+    <figure>
+      <img src="img/five-locks.jpg" width="1536" height="864" loading="lazy" alt="An illustration of five locks, standing for the checks the data must pass before it is loaded.">
+      <figcaption>The gate stands before the load, so a reader never opens the app to a missing verse.</figcaption>
+    </figure>
+    <p class="more"><a href="https://ogobidike.github.io/the-manna-scripture/">Turn the eight leaves of The Scripture →</a></p>
+  </section>
+
+  <section class="leaf" id="leaf-4" data-bg="tomes" aria-labelledby="h4">
+    <p class="no">Leaf IV</p>
+    <h2 id="h4">The App</h2>
+    <p class="lede">An Android app, built with React Native, Expo and TypeScript, made for the first minutes of the day.</p>
+    <ul>
+      <li><strong>Today:</strong> this morning's passage with verse numbers, and <em>Mark as read</em>. Then "Done for today", with tomorrow's reference.</li>
+      <li><strong>Streak:</strong> the current streak on Today, and a 13-week heat map of every morning read.</li>
+      <li><strong>Morning reminder:</strong> a notification every day at your wake time.</li>
+      <li><strong>Settings:</strong> wake time, translation, light or dark, and text size.</li>
+      <li><strong>Offline:</strong> the next 7 passages are saved on the phone, and a reading marked offline is sent when the connection comes back.</li>
+    </ul>
+    <div class="figures">
+      <figure><img src="img/mobile-today.png" width="432" height="834" loading="lazy" alt="Today's passage in the app, with verse numbers and the Mark as read button."><figcaption>Today</figcaption></figure>
+      <figure><img src="img/mobile-today-dark.png" width="432" height="834" loading="lazy" alt="Done for today, in the app's dark theme."><figcaption>Done, in the dark</figcaption></figure>
+      <figure><img src="img/mobile-history.png" width="432" height="960" loading="lazy" alt="The History screen: a heat map of mornings read over 13 weeks."><figcaption>History</figcaption></figure>
+      <figure><img src="img/mobile-reminder.png" width="432" height="834" loading="lazy" alt="The morning reminder notification."><figcaption>The reminder</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="leaf" id="leaf-5" data-bg="tomes" aria-labelledby="h5">
+    <p class="no">Leaf V</p>
+    <h2 id="h5">The Platform</h2>
+    <p class="lede">Every tap in the app becomes an event, and every night those events become answers.</p>
+    <ul>
+      <li><strong>The app</strong> sends a batch of events to the API, built with FastAPI on PostgreSQL.</li>
+      <li><strong>The API</strong> stores them, then copies the batch to a data lake (SeaweedFS, which speaks Amazon S3's language). If the lake is down, the reader never notices.</li>
+      <li><strong>Every night at 00:30 UTC</strong>, Airflow loads yesterday's events into the warehouse.</li>
+      <li><strong>Then dbt</strong> rebuilds the tables that answer who reads and who comes back.</li>
+      <li><strong>Then the champion model</strong> scores tonight's streaks and flags who gets a nudge.</li>
+      <li><strong>Every Sunday</strong> the models retrain, and a new one takes over only if it beats the champion on the same held-out nights.</li>
+    </ul>
+    <figure>
+      <img src="img/airflow-graph.png" width="1368" height="242" loading="lazy" alt="The daily_events DAG in Airflow: load_events, then dbt_build, then score_tonight.">
+      <figcaption>The nightly run in Airflow: load the events, rebuild the warehouse, score tonight.</figcaption>
+    </figure>
+    <div class="tally">
+      <div><b>130</b><span>tests on the API, against a real Postgres</span></div>
+      <div><b>131</b><span>tests on the machine learning</span></div>
+      <div><b>15</b><span>tests on the nightly loader</span></div>
+    </div>
+    <p>One command, <code>docker compose up -d --build</code>, starts all of it: the warehouse, the lake, Airflow, an MLflow model registry and the model service.</p>
+  </section>
+
+  <section class="leaf" id="leaf-6" data-bg="tomes" aria-labelledby="h6">
+    <p class="no">Leaf VI</p>
+    <h2 id="h6">Who Comes Back</h2>
+    <p class="lede">For a daily reading app, two questions matter most: who comes back, and who keeps reading.</p>
+    <p class="pretend"><b>Pretend readers.</b> The answers on leaves VI to IX come from 5,000 simulated readers over 90 days. These are practice data, not real people. The app, the warehouse and the analysis are real; only the readers are made up, and the simulator keeps an answer key to grade against.</p>
+    <div class="tally">
+      <div><b>49.5%</b><span>came back on day 1</span></div>
+      <div><b>40.0%</b><span>came back on day 7</span></div>
+      <div><b>23.6%</b><span>came back on day 30</span></div>
+      <div><b>90.0%</b><span>finished the reading they opened</span></div>
+      <div><b>13%</b><span>of streaks reach a week</span></div>
+      <div><b>917</b><span>of 5,000 signed up but never read</span></div>
+    </div>
+    <p>Every reader counts, including those who never came back, so retention is never flattered. And someone who joined yesterday doesn't count against day 7 until they've had one.</p>
+    <figure>
+      <img src="img/dashboard.png" width="1368" height="812" loading="lazy" alt="The reading dashboard: headline tiles, who reads each day, the reading clock, the reading rhythm, finish rate, streak survival and retention cohorts.">
+      <figcaption>The reading dashboard: six charts and four headline tiles, rebuilt every night, with a filter that recolours the page by reader persona.</figcaption>
+    </figure>
+  </section>
+
+  <section class="leaf" id="leaf-7" data-bg="locks" aria-labelledby="h7">
+    <p class="no">Leaf VII</p>
+    <h2 id="h7">The First Test</h2>
+    <p class="lede">Two wordings of the morning reminder. Which one brings more readers back?</p>
+    <p>The plan was written down before any data existed: the measure (day-7 return), the size (1,508 new readers per group), and how the result would be read. A coin decides each reader's wording.</p>
+    <div class="tally">
+      <div><b>+4.0</b><span>points more readers back on day 7 with wording B (38.2% → 42.3%)</span></div>
+      <div><b>+0.6 to +7.4</b><span>the 95% interval (p = 0.021)</span></div>
+      <div><b>+5.5</b><span>the true effect planted in the simulator, inside that interval</span></div>
+    </div>
+    <p>One practice run can be lucky, so the whole experiment was re-run <strong>1,200</strong> times on fresh pretend readers, through the very same analysis code, to check the analysis itself.</p>
+    <figure>
+      <img src="img/experiment-result.png" width="1368" height="638" loading="lazy" alt="Three measures, each a dot with its 95% interval: day-7 return +4.0 points with the truth, +5.5, inside its interval; day-1 return +4.8 points; finish rate +0.2 points, all well above the guardrail floor at −2.">
+      <figcaption>Wording B won, and neither guardrail dropped. With real readers, the same code runs unchanged.</figcaption>
+    </figure>
+  </section>
+
+  <section class="leaf" id="leaf-8" data-bg="locks" aria-labelledby="h8">
+    <p class="no">Leaf VIII</p>
+    <h2 id="h8">Streak at Risk</h2>
+    <p class="lede">Tonight, how likely is a reader on a streak to miss tomorrow morning?</p>
+    <p>Four models answer it, graded on three weeks they never saw:</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th scope="col">Model</th><th scope="col" class="num">ROC-AUC</th></tr></thead>
+        <tbody>
+          <tr><td>A simple streak-length rule</td><td class="num">0.609</td></tr>
+          <tr><td>Logistic regression</td><td class="num">0.646</td></tr>
+          <tr><td>XGBoost</td><td class="num">0.662</td></tr>
+          <tr class="win"><td>LightGBM, the champion</td><td class="num">0.665</td></tr>
+          <tr><td>Perfect knowledge (the simulator's answer key)</td><td class="num">0.719</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>LightGBM wins by a whisker and gets <strong>half of the way</strong> from the simple rule to perfect knowledge. Nudging its riskiest fifth of readers reaches someone who'd have missed half the time.</p>
+    <ul>
+      <li>Every race is tracked in <strong>MLflow</strong>, and a new model becomes the champion only if it beats the old one on the same nights.</li>
+      <li>A small web API serves the champion, and answers for <strong>1,000 readers in about 20 milliseconds</strong>.</li>
+    </ul>
+    <figure>
+      <img src="img/streak-risk-races.png" width="1368" height="790" loading="lazy" alt="ROC curves on the held-out weeks: the streak rule lowest at 0.609, logistic regression at 0.646, XGBoost and LightGBM almost on top of each other at 0.662 and 0.665, and the truth well above them all at 0.719.">
+      <figcaption>The race, on nights no model had seen.</figcaption>
+    </figure>
+  </section>
+
+  <section class="leaf" id="leaf-9" data-bg="locks" aria-labelledby="h9">
+    <p class="no">Leaf IX</p>
+    <h2 id="h9">The Readers</h2>
+    <p class="lede">Can a model find the kinds of reader from their habits alone?</p>
+    <p>K-means, given four habits and never told the answer, found <strong>3 groups</strong>: early risers, commuters and weekend readers. They match the simulator's true personas with an <strong>adjusted Rand index of 0.91</strong> on readers it never saw. It even found that commuters read earlier at weekends.</p>
+    <figure>
+      <img src="img/personas-map.png" width="1368" height="851" loading="lazy" alt="Three clouds of readers, by weekday reading time and share of reads at weekends: early risers around 05:30, commuters around 07:50, weekend readers around 08:20 with half their reading at weekends.">
+      <figcaption>Three kinds of reader, found from habits alone.</figcaption>
+    </figure>
+    <p>Then the personas earned their keep. The reminder goes off at the reader's wake time, but a commuter starts reading over an hour later, on the train. A model learns when each reader is about to read and picks the time most likely to land in the half hour before. It closes <strong>92%</strong> of the gap between today's reminder and the best possible, and for commuters on weekdays, on time goes from <strong>1% to 51%</strong>.</p>
+    <figure>
+      <img src="img/reminder-time-gaps.png" width="1368" height="973" loading="lazy" alt="Six histograms of how long after waking each group starts reading: early risers within half an hour, commuters about 75 minutes later on weekdays, weekend readers spread across two hours.">
+      <figcaption>How long after waking each kind of reader opens the app.</figcaption>
+    </figure>
+    <p>The personas were built to be different, so real readers will blur more. The method, the honest split and the grade stay the same.</p>
+  </section>
+
+  <section class="leaf" id="leaf-10" data-bg="ledger" aria-labelledby="h10">
+    <p class="no">Leaf X</p>
+    <h2 id="h10">Search by Meaning</h2>
+    <p class="lede">Ask in your own words, and get the verses that answer, even when they share no words.</p>
+    <blockquote>"Verses about worry" finds "Fear thou not; for I am with thee".</blockquote>
+    <p>All 62,188 verses are vectors of their meaning, made by a sentence-transformer model and stored in Postgres with pgvector. The model never saw the Bible's sections, yet a verse's nearest neighbours share its section <strong>62%</strong> of the time, against <strong>17%</strong> by chance.</p>
+    <figure>
+      <img src="img/verse-embeddings-map.png" width="1368" height="973" loading="lazy" alt="A map of all 1,189 chapters of the Bible by meaning: the letters, gospels, poetry, prophets and histories each gather in their own region.">
+      <figcaption>All 1,189 chapters, laid out by meaning.</figcaption>
+    </figure>
+    <p>Graded on 30 questions whose answers were frozen before any search ran, <strong>searching by meaning finds three to four times what keyword search finds</strong>, and a search takes about <strong>11 milliseconds</strong>. Mixing in keywords made it no better.</p>
+    <figure>
+      <img src="img/search-leaderboard.png" width="1368" height="821" loading="lazy" alt="Precision at 5 for each search method on the KJV and ASV: meaning with BGE 30% and 35%, MiniLM 28% and 27%, the hybrid 27% and 27%, keyword search 8% and 11%.">
+      <figcaption>Precision at 5, on the King James and the American Standard.</figcaption>
+    </figure>
+  </section>
+
+  <section class="leaf" id="leaf-11" data-bg="ledger" aria-labelledby="h11">
+    <p class="no">Leaf XI</p>
+    <h2 id="h11">What to Read Next</h2>
+    <p class="lede">After a passage, the app can offer ten verses to read next, each from a different chapter.</p>
+    <blockquote>After John 3:16 comes 1 John 4:9: "God sent his only begotten Son into the world, that we might live through him".</blockquote>
+    <p>The answer key is <strong>OpenBible.info's cross-references</strong>, voted on by readers, with the rules fixed before any recommender ran. Five recommenders raced. <strong>Shared words, meaning and topic tags together</strong> win, graded on whole books they never saw: a shelf holds <strong>25%</strong> of a verse's voted links, and over half of shelves hold at least one.</p>
+    <figure>
+      <img src="img/shelves-leaderboard.png" width="1368" height="790" loading="lazy" alt="Five recommenders on three measures against chance: words, meaning and topics together find 25% of a verse's voted links on a shelf of 10.">
+      <figcaption>Five recommenders, graded against chance.</figcaption>
+    </figure>
+    <p>The topic tags behind it come from 30 topics a reader would recognise, graded against <strong>Nave's Topical Bible</strong> (1896). Hope gets 85% of its first screen right. "Readers like you" is built too, and switched off until real readers choose passages for themselves.</p>
+  </section>
+
+  <section class="leaf" id="leaf-12" data-bg="ledger" aria-labelledby="h12">
+    <p class="no">Leaf XII</p>
+    <h2 id="h12">The Road Ahead</h2>
+    <p class="lede">The app, the platform and the models are built. What's left is taking them to the people they're for.</p>
+    <ul>
+      <li><strong>To the cloud on AWS</strong>, with a budget alarm set first: the database on RDS, the lake on S3, the services on App Runner or ECS, secrets in Secrets Manager, images shipped by CI/CD to ECR, and monitoring.</li>
+      <li><strong>The push nudge</strong>, so tonight's riskiest streaks get a gentle word.</li>
+      <li><strong>"Readers like you"</strong>, switched on once real readers are choosing passages.</li>
+      <li><strong>A second A/B test</strong>, of the smarter reminder time.</li>
+      <li><strong>Maybe an open model</strong>, such as Gemma or Mistral, inside the app.</li>
+    </ul>
+    <p>Every piece is built so that a working person, in the first minutes of the day, finds one short passage waiting, and a reason to come back tomorrow.</p>
+    <p class="more"><a href="https://github.com/OGobidike/Morning-Manna">The code is open: github.com/OGobidike/Morning-Manna →</a></p>
+  </section>
+
+  <footer class="colophon">
+    <p class="fleuron" aria-hidden="true">❦</p>
+    <p>Morning Manna · Francis Obidike · <a href="https://github.com/OGobidike">github.com/OGobidike</a></p>
+    <p>Scripture from the King James Version and the American Standard Version, both public domain. The reader results come from simulated readers.</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('daynight');
+  function stored() { try { return localStorage.getItem('mm-theme'); } catch (e) { return null; } }
+  function save(v) { try { localStorage.setItem('mm-theme', v); } catch (e) {} }
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function paint() {
+    var d = isDark();
+    btn.querySelector('.glyph').textContent = d ? '☾' : '☀';
+    btn.querySelector('.label').textContent = d ? 'Night' : 'Day';
+    btn.setAttribute('aria-pressed', d ? 'true' : 'false');
+  }
+  var s = stored();
+  if (s === 'dark' || s === 'light') root.setAttribute('data-theme', s);
+  paint();
+  btn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next); save(next); paint();
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', paint);
+  }
+
+  var scenes = {};
+  document.querySelectorAll('.backdrop img').forEach(function (im) { scenes[im.getAttribute('data-bg')] = im; });
+  var current = 'scriptorium';
+  function show(name) {
+    if (!scenes[name] || name === current) return;
+    scenes[current].classList.remove('on');
+    scenes[name].classList.add('on');
+    current = name;
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) show(e.target.getAttribute('data-bg')); });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    document.querySelectorAll('[data-bg]').forEach(function (el) { if (el.tagName !== 'IMG') io.observe(el); });
+  }
+})();
+</script>
+</body>
+</html>
