@@ -2,7 +2,7 @@
 
 A one-page tour of [Morning Manna](https://github.com/OGobidike/Morning-Manna): a daily Bible reading app for working people, and the data platform behind it.
 
-Live: https://ogobidike.github.io/morning-manna-chronicle/
+Live: https://ogobidike.github.io/morning-manna-chronicle
 
 The reader results on leaves VI to IX come from simulated readers, not real people.
 
